@@ -41,6 +41,7 @@ export const currencyInfo: EdgeCurrencyInfo = {
 
   metaTokens: [], // Deprecated
 
+  unsafeSyncNetwork: true,
   unsafeBroadcastTx: true
 }
 

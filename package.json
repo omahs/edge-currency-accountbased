@@ -140,7 +140,7 @@
     "prettier": "^2.2.0",
     "process": "^0.11.10",
     "react-native-piratechain": "^0.3.2",
-    "react-native-zcash": "^0.3.2",
+    "react-native-zcash": "file:../react-native-zcash",
     "rimraf": "^3.0.2",
     "stream-browserify": "^2.0.2",
     "stream-http": "^3.2.0",
@@ -154,6 +154,6 @@
   },
   "peerDependencies": {
     "react-native-piratechain": "^0.3.2",
-    "react-native-zcash": "^0.3.2"
+    "react-native-zcash": "^0.3.3"
   }
 }

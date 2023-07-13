@@ -4,6 +4,7 @@ import {
   EdgeCurrencyEngineOptions,
   EdgeCurrencyTools,
   EdgeEnginePrivateKeyOptions,
+  EdgeFreshAddress,
   EdgeSpendInfo,
   EdgeTransaction,
   EdgeWalletInfo,
@@ -42,12 +43,15 @@ export class ZcashEngine extends CurrencyEngine<
   availableZatoshi!: string
   initialNumBlocksToDownload!: number
   initializer!: ZcashInitializerConfig
-  alias!: string
   progressRatio!: number
   queryMutex: boolean
   makeSynchronizer: (
     config: ZcashInitializerConfig
   ) => Promise<ZcashSynchronizer>
+
+  // Synchronizer management
+  started: boolean
+  resolver?: (value: number | PromiseLike<number>) => void
 
   constructor(
     env: PluginEnvironment<ZcashNetworkInfo>,
@@ -62,6 +66,8 @@ export class ZcashEngine extends CurrencyEngine<
     this.networkInfo = networkInfo
     this.makeSynchronizer = makeSynchronizer
     this.queryMutex = false
+
+    this.started = false
   }
 
   setOtherData(raw: any): void {
@@ -69,7 +75,7 @@ export class ZcashEngine extends CurrencyEngine<
   }
 
   initData(): void {
-    const { birthdayHeight, alias } = this.initializer
+    const { birthdayHeight } = this.initializer
 
     // walletLocalData
     if (this.otherData.blockRange.first === 0) {
@@ -80,7 +86,6 @@ export class ZcashEngine extends CurrencyEngine<
     }
 
     // Engine variables
-    this.alias = alias
     this.initialNumBlocksToDownload = -1
     this.synchronizerStatus = 'DISCONNECTED'
     this.availableZatoshi = '0'
@@ -177,10 +182,7 @@ export class ZcashEngine extends CurrencyEngine<
   }
 
   async startEngine(): Promise<void> {
-    this.initData()
-    this.synchronizer = await this.makeSynchronizer(this.initializer)
-    await this.synchronizer.start()
-    this.initSubscriptions()
+    this.started = true
     await super.startEngine()
   }
 
@@ -192,7 +194,7 @@ export class ZcashEngine extends CurrencyEngine<
   async queryBalance(): Promise<void> {
     if (!this.isSynced()) return
     try {
-      const balances = await this.synchronizer.getShieldedBalance()
+      const balances = await this.synchronizer.getBalance()
       if (balances.totalZatoshi === '-1') return
       this.availableZatoshi = balances.availableZatoshi
       this.updateBalance(this.currencyInfo.currencyCode, balances.totalZatoshi)
@@ -272,7 +274,36 @@ export class ZcashEngine extends CurrencyEngine<
     this.addTransaction(this.currencyInfo.currencyCode, edgeTransaction)
   }
 
+  async syncNetwork(opts: EdgeEnginePrivateKeyOptions): Promise<number> {
+    if (!this.started) return 1000
+
+    const zcashPrivateKeys = asZcashPrivateKeys(this.currencyInfo.pluginId)(
+      opts?.privateKeys
+    )
+
+    const { rpcNode } = this.networkInfo
+    this.initializer = {
+      mnemonicSeed: zcashPrivateKeys.mnemonic,
+      birthdayHeight: zcashPrivateKeys.birthdayHeight,
+      alias: this.walletInfo.keys.publicKey.slice(0, 99),
+      ...rpcNode
+    }
+
+    this.synchronizer = await this.makeSynchronizer(this.initializer)
+    this.initData()
+    this.initSubscriptions()
+
+    return await new Promise(resolve => {
+      this.resolver = resolve
+    })
+  }
+
   async killEngine(): Promise<void> {
+    this.started = false
+    if (this.resolver != null) {
+      await this.resolver(1000)
+      this.resolver = undefined
+    }
     await this.synchronizer.stop()
     await super.killEngine()
   }
@@ -287,8 +318,10 @@ export class ZcashEngine extends CurrencyEngine<
     await this.clearBlockchainCache()
     await this.startEngine()
     this.synchronizer
-      .rescan(this.walletInfo.keys.birthdayHeight)
+      .rescan()
       .catch((e: any) => this.warn('resyncBlockchain failed: ', e))
+    this.initData()
+    this.synchronizerStatus = 'SYNCING'
   }
 
   async getMaxSpendable(): Promise<string> {
@@ -384,7 +417,7 @@ export class ZcashEngine extends CurrencyEngine<
       toAddress: spendTarget.publicAddress,
       memo: spendTarget.memo ?? spendTarget.uniqueIdentifier ?? '',
       fromAccountIndex: 0,
-      spendingKey: zcashPrivateKeys.spendKey
+      mnemonicSeed: zcashPrivateKeys.mnemonic
     }
 
     try {
@@ -400,13 +433,21 @@ export class ZcashEngine extends CurrencyEngine<
     return edgeTransaction
   }
 
+  async getFreshAddress(): Promise<EdgeFreshAddress> {
+    if (this.synchronizer == null) throw new Error('Synchronizer undefined')
+    const unifiedAddress = await this.synchronizer.deriveUnifiedAddress()
+    return {
+      publicAddress: unifiedAddress
+    }
+  }
+
   getDisplayPrivateSeed(privateKeys: JsonObject): string {
     const zcashPrivateKeys = asZcashPrivateKeys(this.pluginId)(privateKeys)
     return zcashPrivateKeys.mnemonic
   }
 
   getDisplayPublicSeed(): string {
-    return this.walletInfo.keys.unifiedViewingKeys?.extfvk ?? ''
+    return this.walletInfo.keys.publicKey
   }
 
   async loadEngine(
@@ -416,14 +457,6 @@ export class ZcashEngine extends CurrencyEngine<
   ): Promise<void> {
     await super.loadEngine(plugin, walletInfo, opts)
     this.engineOn = true
-
-    const { rpcNode } = this.networkInfo
-    this.initializer = {
-      fullViewingKey: walletInfo.keys.unifiedViewingKeys,
-      birthdayHeight: walletInfo.keys.birthdayHeight,
-      alias: walletInfo.keys.publicKey,
-      ...rpcNode
-    }
   }
 }
 export async function makeCurrencyEngine(
