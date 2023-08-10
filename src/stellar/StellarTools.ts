@@ -4,6 +4,7 @@ import {
   EdgeCurrencyTools,
   EdgeEncodeUri,
   EdgeIo,
+  EdgeMetaToken,
   EdgeParsedUri,
   EdgeTokenMap,
   EdgeWalletInfo
@@ -14,7 +15,7 @@ import parse from 'url-parse'
 
 import { PluginEnvironment } from '../common/innerPlugin'
 import { parseUriCommon } from '../common/uriHelpers'
-import { getDenomInfo } from '../common/utils'
+import { getLegacyDenomination } from '../common/utils'
 import { StellarNetworkInfo } from './stellarTypes'
 
 const URI_PREFIX = 'web+stellar'
@@ -137,7 +138,10 @@ export class StellarTools implements EdgeCurrencyTools {
     return edgeParsedUri
   }
 
-  async encodeUri(obj: EdgeEncodeUri): Promise<string> {
+  async encodeUri(
+    obj: EdgeEncodeUri,
+    customTokens: EdgeMetaToken[] = []
+  ): Promise<string> {
     const valid = this.checkAddress(obj.publicAddress)
     if (!valid) {
       throw new Error('InvalidPublicAddressError')
@@ -146,7 +150,11 @@ export class StellarTools implements EdgeCurrencyTools {
     if (typeof obj.nativeAmount === 'string') {
       const currencyCode: string = 'XLM'
       const nativeAmount: string = obj.nativeAmount
-      const denom = getDenomInfo(this.currencyInfo, currencyCode)
+      const denom = getLegacyDenomination(
+        currencyCode,
+        this.currencyInfo,
+        customTokens
+      )
       if (denom == null) {
         throw new Error('InternalErrorInvalidCurrencyCode')
       }

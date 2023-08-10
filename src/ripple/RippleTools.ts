@@ -4,6 +4,7 @@ import {
   EdgeCurrencyTools,
   EdgeEncodeUri,
   EdgeIo,
+  EdgeMetaToken,
   EdgeParsedUri,
   EdgeToken,
   EdgeTokenMap,
@@ -22,7 +23,11 @@ import ECDSA from 'xrpl/dist/npm/ECDSA'
 import { PluginEnvironment } from '../common/innerPlugin'
 import { validateToken } from '../common/tokenHelpers'
 import { encodeUriCommon, parseUriCommon } from '../common/uriHelpers'
-import { asyncWaterfall, getDenomInfo, safeErrorMessage } from '../common/utils'
+import {
+  asyncWaterfall,
+  getLegacyDenomination,
+  safeErrorMessage
+} from '../common/utils'
 import { asXrpNetworkLocation, XrpNetworkInfo } from './rippleTypes'
 import { makeTokenId } from './rippleUtils'
 
@@ -143,7 +148,10 @@ export class RippleTools implements EdgeCurrencyTools {
     return edgeParsedUri
   }
 
-  async encodeUri(obj: EdgeEncodeUri): Promise<string> {
+  async encodeUri(
+    obj: EdgeEncodeUri,
+    customTokens: EdgeMetaToken[] = []
+  ): Promise<string> {
     const valid = isValidAddress(obj.publicAddress)
     if (!valid) {
       throw new Error('InvalidPublicAddressError')
@@ -152,7 +160,11 @@ export class RippleTools implements EdgeCurrencyTools {
     if (typeof obj.nativeAmount === 'string') {
       const currencyCode: string = 'XRP'
       const nativeAmount: string = obj.nativeAmount
-      const denom = getDenomInfo(this.currencyInfo, currencyCode)
+      const denom = getLegacyDenomination(
+        currencyCode,
+        this.currencyInfo,
+        customTokens
+      )
       if (denom == null) {
         throw new Error('InternalErrorInvalidCurrencyCode')
       }

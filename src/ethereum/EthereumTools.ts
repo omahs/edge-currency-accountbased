@@ -18,7 +18,7 @@ import hdKey from 'ethereumjs-wallet/hdkey'
 import { PluginEnvironment } from '../common/innerPlugin'
 import { asMaybeContractLocation, validateToken } from '../common/tokenHelpers'
 import { encodeUriCommon, parseUriCommon } from '../common/uriHelpers'
-import { biggyScience, getDenomInfo } from '../common/utils'
+import { biggyScience, getLegacyDenomination } from '../common/utils'
 import { ethereumPlugins } from './ethereumInfos'
 import { EthereumNetworkInfo } from './ethereumTypes'
 
@@ -299,7 +299,7 @@ export class EthereumTools implements EdgeCurrencyTools {
 
   async encodeUri(
     obj: EdgeEncodeUri,
-    customTokens?: EdgeMetaToken[]
+    customTokens: EdgeMetaToken[] = []
   ): Promise<string> {
     const { publicAddress, nativeAmount, currencyCode } = obj
     const valid = EthereumUtil.isValidAddress(publicAddress)
@@ -309,10 +309,9 @@ export class EthereumTools implements EdgeCurrencyTools {
     }
     let amount
     if (typeof nativeAmount === 'string') {
-      const denom = getDenomInfo(
+      const denom = getLegacyDenomination(
+        currencyCode ?? this.currencyInfo.currencyCode,
         this.currencyInfo,
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing
-        currencyCode || this.currencyInfo.currencyCode,
         customTokens
       )
       if (denom == null) {

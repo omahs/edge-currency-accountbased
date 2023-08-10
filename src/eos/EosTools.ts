@@ -16,6 +16,7 @@ import {
   EdgeFetchFunction,
   EdgeIo,
   EdgeLog,
+  EdgeMetaToken,
   EdgeParsedUri,
   EdgeToken,
   EdgeTokenMap,
@@ -25,7 +26,11 @@ import {
 import { PluginEnvironment } from '../common/innerPlugin'
 import { asMaybeContractLocation, validateToken } from '../common/tokenHelpers'
 import { encodeUriCommon, parseUriCommon } from '../common/uriHelpers'
-import { asyncWaterfall, getDenomInfo, getFetchCors } from '../common/utils'
+import {
+  asyncWaterfall,
+  getFetchCors,
+  getLegacyDenomination
+} from '../common/utils'
 import {
   asGetActivationCost,
   asGetActivationSupportedCurrencies
@@ -125,7 +130,10 @@ export class EosTools implements EdgeCurrencyTools {
     return edgeParsedUri
   }
 
-  async encodeUri(obj: EdgeEncodeUri): Promise<string> {
+  async encodeUri(
+    obj: EdgeEncodeUri,
+    customTokens: EdgeMetaToken[] = []
+  ): Promise<string> {
     const valid = checkAddress(obj.publicAddress)
     if (!valid) {
       throw new Error('InvalidPublicAddressError')
@@ -134,7 +142,11 @@ export class EosTools implements EdgeCurrencyTools {
     if (typeof obj.nativeAmount === 'string') {
       const currencyCode = this.currencyInfo.currencyCode
       const nativeAmount = obj.nativeAmount
-      const denom = getDenomInfo(this.currencyInfo, currencyCode)
+      const denom = getLegacyDenomination(
+        currencyCode,
+        this.currencyInfo,
+        customTokens
+      )
       if (denom == null) {
         throw new Error('InternalErrorInvalidCurrencyCode')
       }
