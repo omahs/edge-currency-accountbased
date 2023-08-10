@@ -698,7 +698,7 @@ export async function makeCurrencyEngine(
 
   engine.stellarApi = stellarApi
 
-  await engine.loadEngine(tools, safeWalletInfo, opts)
+  await engine.loadEngine()
 
   return engine
 }

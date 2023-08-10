@@ -2,7 +2,6 @@ import { abs, add, eq, gt, lte, sub } from 'biggystring'
 import {
   EdgeCurrencyEngine,
   EdgeCurrencyEngineOptions,
-  EdgeCurrencyTools,
   EdgeEnginePrivateKeyOptions,
   EdgeSpendInfo,
   EdgeTransaction,
@@ -409,12 +408,9 @@ export class ZcashEngine extends CurrencyEngine<
     return this.walletInfo.keys.unifiedViewingKeys?.extfvk ?? ''
   }
 
-  async loadEngine(
-    plugin: EdgeCurrencyTools,
-    walletInfo: SafeZcashWalletInfo,
-    opts: EdgeCurrencyEngineOptions
-  ): Promise<void> {
-    await super.loadEngine(plugin, walletInfo, opts)
+  async loadEngine(): Promise<void> {
+    const { walletInfo } = this
+    await super.loadEngine()
     this.engineOn = true
 
     const { rpcNode } = this.networkInfo
@@ -445,7 +441,7 @@ export async function makeCurrencyEngine(
   )
 
   // Do any async initialization necessary for the engine
-  await engine.loadEngine(tools, safeWalletInfo, opts)
+  await engine.loadEngine()
 
   return engine
 }
