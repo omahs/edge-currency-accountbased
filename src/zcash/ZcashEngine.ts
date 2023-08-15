@@ -38,7 +38,6 @@ export class ZcashEngine extends CurrencyEngine<
   pluginId: string
   networkInfo: ZcashNetworkInfo
   otherData!: ZcashWalletOtherData
-  synchronizer!: ZcashSynchronizer
   synchronizerStatus!: ZcashSynchronizerStatus
   availableZatoshi!: string
   initialNumBlocksToDownload!: number
@@ -52,6 +51,7 @@ export class ZcashEngine extends CurrencyEngine<
   // Synchronizer management
   started: boolean
   stopSyncing?: (value: number | PromiseLike<number>) => void
+  synchronizer?: ZcashSynchronizer
 
   constructor(
     env: PluginEnvironment<ZcashNetworkInfo>,
@@ -93,6 +93,7 @@ export class ZcashEngine extends CurrencyEngine<
   }
 
   initSubscriptions(): void {
+    if (this.synchronizer == null) return
     this.synchronizer.on('update', async payload => {
       const { lastDownloadedHeight, scanProgress, networkBlockHeight } = payload
       this.onUpdateBlockHeight(networkBlockHeight)
@@ -192,7 +193,7 @@ export class ZcashEngine extends CurrencyEngine<
   }
 
   async queryBalance(): Promise<void> {
-    if (!this.isSynced()) return
+    if (!this.isSynced() || this.synchronizer == null) return
     try {
       const balances = await this.synchronizer.getBalance()
       if (balances.totalZatoshi === '-1') return
@@ -205,6 +206,7 @@ export class ZcashEngine extends CurrencyEngine<
   }
 
   async queryTransactions(): Promise<void> {
+    if (this.synchronizer == null) return
     try {
       let first = this.otherData.blockRange.first
       let last = this.otherData.blockRange.last
@@ -304,7 +306,7 @@ export class ZcashEngine extends CurrencyEngine<
       await this.stopSyncing(1000)
       this.stopSyncing = undefined
     }
-    await this.synchronizer.stop()
+    await this.synchronizer?.stop()
     await super.killEngine()
   }
 
@@ -318,7 +320,7 @@ export class ZcashEngine extends CurrencyEngine<
     await this.clearBlockchainCache()
     await this.startEngine()
     this.synchronizer
-      .rescan()
+      ?.rescan()
       .catch((e: any) => this.warn('resyncBlockchain failed: ', e))
     this.initData()
     this.synchronizerStatus = 'SYNCING'
@@ -399,6 +401,7 @@ export class ZcashEngine extends CurrencyEngine<
     edgeTransaction: EdgeTransaction,
     opts?: EdgeEnginePrivateKeyOptions
   ): Promise<EdgeTransaction> {
+    if (this.synchronizer == null) throw new Error('Synchronizer undefined')
     const zcashPrivateKeys = asZcashPrivateKeys(this.pluginId)(
       opts?.privateKeys
     )
