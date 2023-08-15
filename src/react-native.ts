@@ -9,7 +9,7 @@ import {
 import {
   makeSynchronizer as ZcashMakeSynchronizer,
   Synchronizer as ZcashSynchronizer,
-  Tools as ZcashTools
+  Tools as ZcashNativeTools
 } from 'react-native-zcash'
 import { bridgifyObject, emit, onMethod } from 'yaob'
 
@@ -103,7 +103,7 @@ const makeZcashSynchronizer = async (
 export function makePluginIo(): EdgeOtherMethods {
   bridgifyObject(PiratechainKeyTool)
   bridgifyObject(PiratechainAddressTool)
-  bridgifyObject(ZcashTools)
+  bridgifyObject(ZcashNativeTools)
 
   return {
     async fetchText(uri: string, opts: Object) {
@@ -126,7 +126,7 @@ export function makePluginIo(): EdgeOtherMethods {
       }
     }),
     zcash: bridgifyObject({
-      Tools: ZcashTools,
+      Tools: ZcashNativeTools,
       async makeSynchronizer(config: ZcashInitializerConfig) {
         return await makeZcashSynchronizer(config)
       }

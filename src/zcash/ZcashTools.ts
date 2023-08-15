@@ -30,7 +30,7 @@ export class ZcashTools implements EdgeCurrencyTools {
   currencyInfo: EdgeCurrencyInfo
   io: EdgeIo
   networkInfo: ZcashNetworkInfo
-  Tools: typeof ToolsType
+  nativeTools: typeof ToolsType
 
   constructor(env: PluginEnvironment<ZcashNetworkInfo>) {
     const { builtinTokens, currencyInfo, io, networkInfo } = env
@@ -45,12 +45,12 @@ export class ZcashTools implements EdgeCurrencyTools {
     }
     const { Tools } = RNAccountbased.zcash
 
-    this.Tools = Tools
+    this.nativeTools = Tools
   }
 
   async getNewWalletBirthdayBlockheight(): Promise<number> {
     try {
-      return await this.Tools.getBirthdayHeight(
+      return await this.nativeTools.getBirthdayHeight(
         this.networkInfo.rpcNode.defaultHost,
         this.networkInfo.rpcNode.defaultPort
       )
@@ -60,7 +60,7 @@ export class ZcashTools implements EdgeCurrencyTools {
   }
 
   async isValidAddress(address: string): Promise<boolean> {
-    return await this.Tools.isValidAddress(address)
+    return await this.nativeTools.isValidAddress(address)
   }
 
   // will actually use MNEMONIC version of private key
@@ -127,7 +127,7 @@ export class ZcashTools implements EdgeCurrencyTools {
       throw new Error('InvalidMnemonic')
     }
     const unifiedViewingKey: UnifiedViewingKey =
-      await this.Tools.deriveViewingKey(
+      await this.nativeTools.deriveViewingKey(
         mnemonic,
         this.networkInfo.rpcNode.networkName
       )
