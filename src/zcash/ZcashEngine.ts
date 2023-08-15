@@ -51,7 +51,7 @@ export class ZcashEngine extends CurrencyEngine<
 
   // Synchronizer management
   started: boolean
-  resolver?: (value: number | PromiseLike<number>) => void
+  stopSyncing?: (value: number | PromiseLike<number>) => void
 
   constructor(
     env: PluginEnvironment<ZcashNetworkInfo>,
@@ -294,15 +294,15 @@ export class ZcashEngine extends CurrencyEngine<
     this.initSubscriptions()
 
     return await new Promise(resolve => {
-      this.resolver = resolve
+      this.stopSyncing = resolve
     })
   }
 
   async killEngine(): Promise<void> {
     this.started = false
-    if (this.resolver != null) {
-      await this.resolver(1000)
-      this.resolver = undefined
+    if (this.stopSyncing != null) {
+      await this.stopSyncing(1000)
+      this.stopSyncing = undefined
     }
     await this.synchronizer.stop()
     await super.killEngine()
