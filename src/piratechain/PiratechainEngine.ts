@@ -436,7 +436,7 @@ export async function makeCurrencyEngine(
 ): Promise<EdgeCurrencyEngine> {
   const safeWalletInfo = asSafePiratechainWalletInfo(walletInfo)
   const { makeSynchronizer } =
-    env.nativeIo['edge-currency-accountbased'][env.networkInfo.nativeSdk]
+    env.nativeIo['edge-currency-accountbased'].piratechain
 
   const engine = new PiratechainEngine(
     env,

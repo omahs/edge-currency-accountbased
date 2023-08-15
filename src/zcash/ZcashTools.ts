@@ -43,7 +43,7 @@ export class ZcashTools implements EdgeCurrencyTools {
     if (RNAccountbased == null) {
       throw new Error('Need opts')
     }
-    const { Tools } = RNAccountbased[this.networkInfo.nativeSdk]
+    const { Tools } = RNAccountbased.zcash
 
     this.Tools = Tools
   }
