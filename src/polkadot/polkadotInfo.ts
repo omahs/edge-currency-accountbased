@@ -32,6 +32,9 @@ export const currencyInfo: EdgeCurrencyInfo = {
     }
   ],
 
+  // No memo support:
+  memoOptions: [],
+
   // Deprecated:
   defaultSettings: {},
   metaTokens: []

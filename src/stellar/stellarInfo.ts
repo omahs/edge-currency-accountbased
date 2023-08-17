@@ -27,9 +27,19 @@ export const currencyInfo: EdgeCurrencyInfo = {
     }
   ],
 
+  // https://developers.stellar.org/docs/encyclopedia/memos
+  memoOptions: [
+    { type: 'hex', maxBytes: 32, minBytes: 32 },
+    { type: 'number', maxValue: '18446744073709551615' },
+    { type: 'text', maxLength: 28 }
+    // We also support a transaction ID for returned funds
+  ],
+  multipleMemos: true,
+
   // Deprecated:
   defaultSettings: {},
   memoMaxLength: 19,
+  memoType: 'text',
   metaTokens: []
 }
 

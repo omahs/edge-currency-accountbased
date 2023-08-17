@@ -4,6 +4,7 @@ import { makeOuterPlugin } from '../../common/innerPlugin'
 import { makeMetaTokens } from '../../common/tokenHelpers'
 import type { EthereumTools } from '../EthereumTools'
 import type { EthereumFees, EthereumNetworkInfo } from '../ethereumTypes'
+import { evmMemoOptions } from './ethereumCommonInfo'
 
 const builtinTokens: EdgeTokenMap = {
   '8ac76a51cc950d9822d68b83fe1ad97b32cd580d': {
@@ -77,6 +78,7 @@ export const currencyInfo: EdgeCurrencyInfo = {
   canReplaceByFee: true,
   currencyCode: 'BNB',
   displayName: 'BNB Smart Chain',
+  memoOptions: evmMemoOptions,
   pluginId: 'binancesmartchain',
   walletType: 'wallet:binancesmartchain',
 
