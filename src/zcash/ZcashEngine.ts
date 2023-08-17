@@ -257,16 +257,16 @@ export class ZcashEngine extends CurrencyEngine<
     }
 
     const edgeTransaction: EdgeTransaction = {
-      txid: tx.rawTransactionId,
-      date: tx.blockTimeInSeconds,
-      currencyCode: this.currencyInfo.currencyCode,
       blockHeight: tx.minedHeight,
-      nativeAmount: netNativeAmount,
+      currencyCode: this.currencyInfo.currencyCode,
+      date: tx.blockTimeInSeconds,
       isSend: netNativeAmount.startsWith('-'),
+      nativeAmount: netNativeAmount,
       networkFee: this.networkInfo.defaultNetworkFee,
+      otherParams: {},
       ourReceiveAddresses, // blank if you sent money otherwise array of addresses that are yours in this transaction
       signedTx: '',
-      otherParams: {},
+      txid: tx.rawTransactionId,
       walletId: this.walletId
     }
     this.addTransaction(this.currencyInfo.currencyCode, edgeTransaction)
@@ -333,15 +333,15 @@ export class ZcashEngine extends CurrencyEngine<
     // Create the unsigned EdgeTransaction
 
     const edgeTransaction: EdgeTransaction = {
-      txid: '', // txid
-      date: 0, // date
-      currencyCode, // currencyCode
       blockHeight: 0, // blockHeight
-      nativeAmount: `-${totalTxAmount}`, // nativeAmount
+      currencyCode, // currencyCode
+      date: 0, // date
       isSend: nativeAmount.startsWith('-'),
+      nativeAmount: `-${totalTxAmount}`, // nativeAmount
       networkFee: this.networkInfo.defaultNetworkFee, // networkFee
       ourReceiveAddresses: [], // ourReceiveAddresses
       signedTx: '', // signedTx
+      txid: '', // txid
       walletId: this.walletId
     }
 

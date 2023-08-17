@@ -332,16 +332,16 @@ export class AlgorandEngine extends CurrencyEngine<
     }
 
     const edgeTransaction: EdgeTransaction = {
-      txid: id,
-      date: roundTime,
-      currencyCode,
       blockHeight: confirmedRound,
-      nativeAmount,
+      currencyCode,
+      date: roundTime,
       isSend,
+      nativeAmount,
       networkFee,
       ourReceiveAddresses,
       parentNetworkFee,
       signedTx: '',
+      txid: id,
       walletId: this.walletId
     }
 
@@ -624,17 +624,17 @@ export class AlgorandEngine extends CurrencyEngine<
     }
 
     const edgeTransaction: EdgeTransaction = {
-      txid: '',
-      date: 0,
-      currencyCode,
       blockHeight: 0,
-      nativeAmount,
+      currencyCode,
+      date: 0,
       isSend: true,
+      nativeAmount,
       networkFee,
+      otherParams,
       ourReceiveAddresses: [],
       parentNetworkFee,
       signedTx: '',
-      otherParams,
+      txid: '',
       walletId: this.walletId
     }
 
