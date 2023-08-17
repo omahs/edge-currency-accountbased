@@ -261,6 +261,7 @@ export class ZcashEngine extends CurrencyEngine<
       currencyCode: this.currencyInfo.currencyCode,
       date: tx.blockTimeInSeconds,
       isSend: netNativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount: netNativeAmount,
       networkFee: this.networkInfo.defaultNetworkFee,
       otherParams: {},
@@ -337,6 +338,7 @@ export class ZcashEngine extends CurrencyEngine<
       currencyCode, // currencyCode
       date: 0, // date
       isSend: nativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount: `-${totalTxAmount}`, // nativeAmount
       networkFee: this.networkInfo.defaultNetworkFee, // networkFee
       ourReceiveAddresses: [], // ourReceiveAddresses

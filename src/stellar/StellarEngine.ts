@@ -248,6 +248,7 @@ export class StellarEngine extends CurrencyEngine<
       currencyCode,
       date,
       isSend: nativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount,
       networkFee,
       otherParams: {
@@ -550,6 +551,7 @@ export class StellarEngine extends CurrencyEngine<
       currencyCode, // currencyCode
       date: 0, // date
       isSend: nativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount, // nativeAmount
       networkFee, // networkFee
       otherParams: {

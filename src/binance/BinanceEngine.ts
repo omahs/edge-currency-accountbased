@@ -183,6 +183,7 @@ export class BinanceEngine extends CurrencyEngine<
       currencyCode,
       date: unixTimestamp,
       isSend: netNativeAmount.startsWith('-'),
+      memos: [],
       metadata: {
         notes: tx.memo
       },
@@ -432,6 +433,7 @@ export class BinanceEngine extends CurrencyEngine<
       currencyCode, // currencyCode
       date: 0, // date
       isSend: nativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount, // nativeAmount
       networkFee: nativeNetworkFee, // networkFee, supposedly fixed
       otherParams, // otherParams

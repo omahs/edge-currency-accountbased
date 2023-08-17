@@ -1026,6 +1026,7 @@ export class EthereumEngine extends CurrencyEngine<
       date: 0, // date
       feeRateUsed: getFeeRateUsed(miningFees.gasPrice, otherParams.gas),
       isSend: nativeAmount.startsWith('-'),
+      memos: [],
       nativeAmount, // nativeAmount
       networkFee: nativeNetworkFee, // networkFee
       otherParams, // otherParams
