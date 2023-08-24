@@ -10,12 +10,14 @@ import {
   EdgeIo,
   EdgeMetaToken,
   EdgeParsedUri,
+  EdgeToken,
   EdgeTokenMap,
   EdgeWalletInfo,
   JsonObject
 } from 'edge-core-js/types'
 
 import { PluginEnvironment } from '../common/innerPlugin'
+import { asMaybeContractLocation, validateToken } from '../common/tokenHelpers'
 import { encodeUriCommon, parseUriCommon } from '../common/uriHelpers'
 import { getLegacyDenomination, isHex } from '../common/utils'
 import { PolkadotNetworkInfo } from './polkadotTypes'
@@ -149,6 +151,15 @@ export class PolkadotTools implements EdgeCurrencyTools {
       // @ts-expect-error
       this.polkadotApi = undefined
     }
+  }
+
+  async getTokenId(token: EdgeToken): Promise<string> {
+    validateToken(token)
+    const cleanLocation = asMaybeContractLocation(token.networkLocation)
+    if (cleanLocation == null) {
+      throw new Error('ErrorInvalidContractAddress')
+    }
+    return cleanLocation.contractAddress
   }
 }
 
