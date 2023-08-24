@@ -85,7 +85,7 @@ function getMemoError(
   if (option.type === 'number') {
     const value = asMaybe(asIntegerString)(memo.value)
     if (value == null) {
-      return `is not valid hexadecimal`
+      return `is not a valid number`
     }
     if (option.maxValue != null && gt(value, option.maxValue)) {
       return `cannot be greater than ${option.maxValue}`
